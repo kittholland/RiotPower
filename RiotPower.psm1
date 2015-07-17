@@ -97,6 +97,7 @@ Function Invoke-RiotRestMethod
         [Uri]$Uri,
         [String[]]$Parameter
     )
+    $OFS = ','
     If(-Not($script:ApiRequests))
     {
         $script:ApiRequests = @()
@@ -106,6 +107,7 @@ Function Invoke-RiotRestMethod
     $key = $ApiKey.ApiKey
     If($Parameter.Count -gt 40)
     {
+        $response = @()
         $arrays = Split-Array -inArray $Parameter -size 40
         Foreach($array in $arrays)
         {
@@ -114,20 +116,32 @@ Function Invoke-RiotRestMethod
                 Start-Sleep -Seconds 1
             }
             $script:ApiRequests += Get-Date
-            $response += Invoke-RestMethod -Method Get -Uri "$uri/$Parameter`?api_key=$key"
-        }
-    }
-    $response = Invoke-RestMethod -Method Get -Uri "$uri/$Parameter`?api_key=$key"
-    If($response)
-    {
-        Foreach ($input in $Parameter)
-        {
-            $response.$input
+            $chunk = Invoke-RestMethod -Method Get -Uri "$uri/$array`?api_key=$key"
+            Foreach($item in $array)
+            {
+                $chunk.$item
+            }
         }
     }
     Else
     {
-        Write-Error -Message 'No response received'
+        While($script:ApiRequests[-$rateLimit] -lt (Get-Date).AddSeconds(-10))
+        {
+            Start-Sleep -Seconds 1
+        }
+        $script:ApiRequests += Get-Date
+        $response = Invoke-RestMethod -Method Get -Uri "$uri/$Parameter`?api_key=$key"
+        If($response)
+        {
+            Foreach ($input in $Parameter)
+            {
+                $response.$input
+            }
+        }
+        Else
+        {
+            Write-Error -Message 'No response received'
+        }
     }
 }
 
@@ -140,28 +154,7 @@ Function Get-SummonerByName
         [string[]]$Name,
         [string]$Region = 'na'
     )
-    $OFS = ','
-    $ApiKey = Get-ApiKey -Current
-    If($ApiKey)
-    {
-        $key = $ApiKey.ApiKey
-        $response = Invoke-RestMethod -Method Get -Uri "https://$Region.api.pvp.net/api/lol/$Region/v1.4/summoner/by-name/$Name`?api_key=$key"
-        If($response)
-        {
-            Foreach ($summoner in $Name)
-            {
-                $response.$summoner
-            }
-        }
-        Else
-        {
-            Write-Error -Message 'No response received'
-        }
-    }
-    Else
-    {
-        Write-Error -Message 'Error loading ApiKey'
-    }
+    Invoke-RiotRestMethod -Uri "https://$Region.api.pvp.net/api/lol/$Region/v1.4/summoner/by-name" -Parameter $Name
 }
 
 Function Get-SummonerByID
@@ -173,28 +166,7 @@ Function Get-SummonerByID
         [string[]]$ID,
         [string]$Region = 'na'
     )
-    $OFS = ','
-    $ApiKey = Get-ApiKey -Current
-    If($ApiKey)
-    {
-        $key = $ApiKey.ApiKey
-        $response = Invoke-RestMethod -Method Get -Uri "https://$Region.api.pvp.net/api/lol/$Region/v1.4/summoner/$ID`?api_key=$key"
-        If($response)
-        {
-            Foreach($summoner in $ID)
-            {
-                $response.$summoner
-            }
-        }
-        Else
-        {
-            Write-Error -Message 'No response received'
-        }
-    }
-    Else
-    {
-        Write-Error -Message 'Error loading ApiKey'
-    }
+    Invoke-RiotRestMethod -Uri "https://$Region.api.pvp.net/api/lol/$Region/v1.4/summoner" -Parameter $ID
 }
 
 Function Get-SummonerIDbyName
@@ -287,3 +259,4 @@ Function Split-Array
   return ,$outArray 
  
 }
+
