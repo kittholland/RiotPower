@@ -1,6 +1,4 @@
-﻿$baseURI = 'https://na.api.pvp.net/api/lol/na'
-
-Function Add-ApiKey
+﻿Function Add-ApiKey
 {
     [CmdletBinding()]
     Param
