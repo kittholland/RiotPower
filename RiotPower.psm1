@@ -1,5 +1,22 @@
 ﻿Function Add-ApiKey
 {
+<#   
+  .SYNOPSIS    
+    Add an ApiKey to your local keystore for subsequent commands. Key is stored in your Windows profile.  
+  .PARAMETER Name
+   Name of your ApiKey for ease selecting later. (Dev, Prod, App1 etc.)
+  .PARAMETER ApiKey
+   The key you are adding.
+  .PARAMETER RateLimit
+   The rate limit for your API key measured in requests per 10 seconds. Default is 10.
+  .PARAMETER Default
+   Adding this parameter will set this key as your default for future sessions.
+  .PARAMETER Current
+   Adding this parameter will set this key as the current key to use for this session.
+  .EXAMPLE   
+   Add-ApiKey -Name 'Dev' -ApiKey df4750ee-8b33-4975-9d8a-a52c481fae3d -RateLimit 100 -Default
+#>  
+
     [CmdletBinding()]
     Param
     (
