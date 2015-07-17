@@ -95,7 +95,8 @@ Function Invoke-RiotRestMethod
     (
         [Parameter(Mandatory=$true)]
         [Uri]$Uri,
-        [String[]]$Parameter
+        [String[]]$Parameter,
+        [String]$Method
     )
     $OFS = ','
     If(-Not($script:ApiRequests))
@@ -111,12 +112,15 @@ Function Invoke-RiotRestMethod
         $arrays = Split-Array -inArray $Parameter -size 40
         Foreach($array in $arrays)
         {
-            While($script:ApiRequests[-$rateLimit] -gt (Get-Date).AddSeconds(-10))
+            If($script:ApiRequests)
             {
-                Start-Sleep -Seconds 1
+                While($script:ApiRequests[-$rateLimit] -gt (Get-Date).AddSeconds(-10))
+                {
+                    Start-Sleep -Seconds 1
+                }
             }
             $script:ApiRequests += Get-Date
-            $chunk = Invoke-RestMethod -Method Get -Uri "$uri/$array`?api_key=$key"
+            $chunk = Invoke-RestMethod -Method Get -Uri "$uri/$array$Method`?api_key=$key"
             Foreach($item in $array)
             {
                 $chunk.$item
@@ -125,12 +129,15 @@ Function Invoke-RiotRestMethod
     }
     Else
     {
-        While($script:ApiRequests[-$rateLimit] -lt (Get-Date).AddSeconds(-10))
+        If($script:ApiRequests.Count -gt 10)
         {
-            Start-Sleep -Seconds 1
+            While($script:ApiRequests[-$rateLimit] -lt (Get-Date).AddSeconds(-10))
+            {
+                Start-Sleep -Seconds 1
+            }
         }
         $script:ApiRequests += Get-Date
-        $response = Invoke-RestMethod -Method Get -Uri "$uri/$Parameter`?api_key=$key"
+        $response = Invoke-RestMethod -Method Get -Uri "$uri/$Parameter$Method`?api_key=$key"
         If($response)
         {
             Foreach ($input in $Parameter)
@@ -203,25 +210,7 @@ Function Get-SummonerMasteries
     {
         $ID = Get-SummonerIDbyName -Name $Name
     }
-    $OFS = ','
-    $ApiKey = Get-ApiKey -Current
-    If($ApiKey)
-    {
-        $key = $ApiKey.ApiKey
-        $response = Invoke-RestMethod -Method Get -Uri "https://$Region.api.pvp.net/api/lol/$Region/v1.4/summoner/$ID/masteries`?api_key=$key"
-        If($response)
-        {
-            Return $response
-        }
-        Else
-        {
-            Write-Error -Message 'No response received'
-        }
-    }
-    Else
-    {
-        Write-Error -Message 'Error loading ApiKey'
-    }
+    Invoke-RiotRestMethod -Uri "https://$Region.api.pvp.net/api/lol/$Region/v1.4/summoner" -Parameter $ID -Method '/masteries'
 }
 
 #Split-array is community script from https://gallery.technet.microsoft.com/scriptcenter/Split-an-array-into-parts-4357dcc1 by Barry Chum
