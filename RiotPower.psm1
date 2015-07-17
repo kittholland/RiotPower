@@ -111,7 +111,7 @@ Function Invoke-RiotRestMethod
     Param
     (
         [Parameter(Mandatory=$true)]
-        [Uri]$Uri,
+        [Uri]$BaseUri,
         [String[]]$Parameter,
         [String]$Method
     )
@@ -137,7 +137,7 @@ Function Invoke-RiotRestMethod
                 }
             }
             $script:ApiRequests += Get-Date
-            $chunk = Invoke-RestMethod -Method Get -Uri "$uri/$array$Method`?api_key=$key"
+            $chunk = Invoke-RestMethod -Method Get -Uri "$BaseUri/$array$Method`?api_key=$key"
             Foreach($item in $array)
             {
                 $chunk.$item
@@ -154,7 +154,7 @@ Function Invoke-RiotRestMethod
             }
         }
         $script:ApiRequests += Get-Date
-        $response = Invoke-RestMethod -Method Get -Uri "$uri/$Parameter$Method`?api_key=$key"
+        $response = Invoke-RestMethod -Method Get -Uri "$BaseUri/$Parameter$Method`?api_key=$key"
         If($response)
         {
             Foreach ($input in $Parameter)
@@ -178,7 +178,7 @@ Function Get-SummonerByName
         [string[]]$Name,
         [string]$Region = 'na'
     )
-    Invoke-RiotRestMethod -Uri "https://$Region.api.pvp.net/api/lol/$Region/v1.4/summoner/by-name" -Parameter $Name
+    Invoke-RiotRestMethod -BaseUri "https://$Region.api.pvp.net/api/lol/$Region/v1.4/summoner/by-name" -Parameter $Name
 }
 
 Function Get-SummonerByID
@@ -190,7 +190,7 @@ Function Get-SummonerByID
         [string[]]$ID,
         [string]$Region = 'na'
     )
-    Invoke-RiotRestMethod -Uri "https://$Region.api.pvp.net/api/lol/$Region/v1.4/summoner" -Parameter $ID
+    Invoke-RiotRestMethod -BaseUri "https://$Region.api.pvp.net/api/lol/$Region/v1.4/summoner" -Parameter $ID
 }
 
 Function Get-SummonerIDbyName
@@ -227,7 +227,7 @@ Function Get-SummonerMasteries
     {
         $ID = Get-SummonerIDbyName -Name $Name
     }
-    Invoke-RiotRestMethod -Uri "https://$Region.api.pvp.net/api/lol/$Region/v1.4/summoner" -Parameter $ID -Method '/masteries'
+    Invoke-RiotRestMethod -BaseUri "https://$Region.api.pvp.net/api/lol/$Region/v1.4/summoner" -Parameter $ID -Method '/masteries'
 }
 
 #Split-array is community script from https://gallery.technet.microsoft.com/scriptcenter/Split-an-array-into-parts-4357dcc1 by Barry Chum
