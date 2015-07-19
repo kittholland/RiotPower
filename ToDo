@@ -18,3 +18,5 @@ Get-Game
 Get-CurrentGame
 
 Get-League
+
+Collect static data and cache within script for easy lookup
