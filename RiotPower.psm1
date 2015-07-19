@@ -164,30 +164,16 @@ Function Invoke-RiotRestMethod
         $response = Invoke-RestMethod -Method Get -Uri "$BaseUri/$Parameter$Method`?api_key=$key"
         If($response)
         {
-            If($Parameter.Count -gt 1)
+            If($response.($Parameter[0]))
             {
-                If($response.($Parameter[0]))
+                Foreach ($input in $Parameter)
                 {
-                    Foreach ($input in $Parameter)
-                    {
-                        $response.$input
-                    }
-                }
-                Else
-                {
-                    $response
+                    $response.$input
                 }
             }
             Else
             {
-                If($response.$Parameter)
-                {
-                    $response.$Parameter
-                }
-                Else
-                {
-                    $response
-                }
+                $response
             }
         }
         Else
