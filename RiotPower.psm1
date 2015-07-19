@@ -155,7 +155,7 @@ Function Invoke-RiotRestMethod
     {
         If($script:ApiRequests.Count -gt 10)
         {
-            While($script:ApiRequests[-$rateLimit] -lt (Get-Date).AddSeconds(-10))
+            While($script:ApiRequests[-$rateLimit] -gt (Get-Date).AddSeconds(-10))
             {
                 Start-Sleep -Seconds 1
             }
@@ -281,6 +281,52 @@ Function Get-RecentGames
     Foreach($summoner in $id)
     {
         Invoke-RiotRestMethod -BaseUri "https://$Region.api.pvp.net/api/lol/$Region/v1.3/game/by-summoner" -Parameter $summoner -Method '/recent'
+    }
+}
+
+Function Get-RankedStats
+{
+    [CmdletBinding()]
+    Param
+    (
+        [Parameter(Mandatory=$true,
+        ParameterSetName='ID')]
+        [string[]]$ID,
+        [Parameter(Mandatory=$true,
+        ParameterSetName='Name')]
+        [string[]]$Name,
+        [string]$Region = 'na'
+    )
+    If($PSCmdlet.ParameterSetName -eq 'Name')
+    {
+        $ID = Get-SummonerIDbyName -Name $Name
+    }
+    Foreach($summoner in $id)
+    {
+        Invoke-RiotRestMethod -BaseUri "https://$Region.api.pvp.net/api/lol/$Region/v1.3/stats/by-summoner" -Parameter $summoner -Method '/ranked'
+    }
+}
+
+Function Get-Stats
+{
+    [CmdletBinding()]
+    Param
+    (
+        [Parameter(Mandatory=$true,
+        ParameterSetName='ID')]
+        [string[]]$ID,
+        [Parameter(Mandatory=$true,
+        ParameterSetName='Name')]
+        [string[]]$Name,
+        [string]$Region = 'na'
+    )
+    If($PSCmdlet.ParameterSetName -eq 'Name')
+    {
+        $ID = Get-SummonerIDbyName -Name $Name
+    }
+    Foreach($summoner in $id)
+    {
+        Invoke-RiotRestMethod -BaseUri "https://$Region.api.pvp.net/api/lol/$Region/v1.3/stats/by-summoner" -Parameter $summoner -Method '/summary'
     }
 }
 
