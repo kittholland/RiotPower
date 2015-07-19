@@ -138,9 +138,16 @@ Function Invoke-RiotRestMethod
             }
             $script:ApiRequests += Get-Date
             $chunk = Invoke-RestMethod -Method Get -Uri "$BaseUri/$array$Method`?api_key=$key"
-            Foreach($item in $array)
+            If($chunk.$array[0])
             {
-                $chunk.$item
+                Foreach($item in $array)
+                {
+                    $chunk.$item
+                }
+            }
+            Else
+            {
+                $chunk
             }
         }
     }
@@ -157,9 +164,30 @@ Function Invoke-RiotRestMethod
         $response = Invoke-RestMethod -Method Get -Uri "$BaseUri/$Parameter$Method`?api_key=$key"
         If($response)
         {
-            Foreach ($input in $Parameter)
+            If($Parameter.Count -gt 1)
             {
-                $response.$input
+                If($response.$Parameter[0])
+                {
+                    Foreach ($input in $Parameter)
+                    {
+                        $response.$input
+                    }
+                }
+                Else
+                {
+                    $response
+                }
+            }
+            Else
+            {
+                If($response.$Parameter)
+                {
+                    $response.$Parameter
+                }
+                Else
+                {
+                    $response
+                }
             }
         }
         Else
@@ -204,10 +232,7 @@ Function Get-SummonerIDbyName
     )
     $ID = @()
     $summoners = Get-SummonerByName -Name $Name
-    Foreach($summoner in $Name)
-    {
-        $summoners.$summoner.id
-    }
+    $summoners.id
 }
 
 Function Get-SummonerMasteries
@@ -228,6 +253,49 @@ Function Get-SummonerMasteries
         $ID = Get-SummonerIDbyName -Name $Name
     }
     Invoke-RiotRestMethod -BaseUri "https://$Region.api.pvp.net/api/lol/$Region/v1.4/summoner" -Parameter $ID -Method '/masteries'
+}
+
+Function Get-SummonerRunes
+{
+    [CmdletBinding()]
+    Param
+    (
+        [Parameter(Mandatory=$true,
+        ParameterSetName='ID')]
+        [string[]]$ID,
+        [Parameter(Mandatory=$true,
+        ParameterSetName='Name')]
+        [string[]]$Name,
+        [string]$Region = 'na'
+    )
+    If($PSCmdlet.ParameterSetName -eq 'Name')
+    {
+        $ID = Get-SummonerIDbyName -Name $Name
+    }
+    Invoke-RiotRestMethod -BaseUri "https://$Region.api.pvp.net/api/lol/$Region/v1.4/summoner" -Parameter $ID -Method '/runes'
+}
+
+Function Get-RecentGames
+{
+    [CmdletBinding()]
+    Param
+    (
+        [Parameter(Mandatory=$true,
+        ParameterSetName='ID')]
+        [string[]]$ID,
+        [Parameter(Mandatory=$true,
+        ParameterSetName='Name')]
+        [string[]]$Name,
+        [string]$Region = 'na'
+    )
+    If($PSCmdlet.ParameterSetName -eq 'Name')
+    {
+        $ID = Get-SummonerIDbyName -Name $Name
+    }
+    Foreach($summoner in $id)
+    {
+        Invoke-RiotRestMethod -BaseUri "https://$Region.api.pvp.net/api/lol/$Region/v1.3/game/by-summoner" -Parameter $summoner -Method '/recent'
+    }
 }
 
 #Split-array is community script from https://gallery.technet.microsoft.com/scriptcenter/Split-an-array-into-parts-4357dcc1 by Barry Chum
