@@ -1,7 +1,10 @@
+Create config file for default region and other options, create Set-RiotPowerConfig for determining settings.
+
+Add-ApiKey (Handle duplicate key names/ids)
+Get-ApiKey (Handle multiple current keys)
 Select-ApiKey
 Remove-ApiKey
 
-Get-SummonerRune
 Get-SummonerName
 
 Get-Team
@@ -9,8 +12,6 @@ Get-Team
 Get-Match
 
 Get-MatchHistory
-
-Get-Stats
 
 Get-Game
 

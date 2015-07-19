@@ -62,12 +62,16 @@
 
 Function Get-ApiKey
 {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName='None')]
     Param
     (
+        [Parameter(ParameterSetName='Name')]
         [string]$Name,
+        [Parameter(ParameterSetName='ApiKey')]
         [string]$ApiKey,
+        [Parameter(ParameterSetName='Current')]
         [switch]$Current,
+        [Parameter(ParameterSetName='Default')]
         [switch]$Default
     )
     $KeyPath = "$env:USERPROFILE\riotApiKeys.json"
@@ -78,29 +82,28 @@ Function Get-ApiKey
     Else
     {
         $keys = Get-Content -Path $KeyPath -Raw | ConvertFrom-Json
-        If($Current)
+        Switch($PSCmdlet.ParameterSetName)
         {
-            $keys | Where-Object {$_.Current -eq 'True'}
-        }
-        ElseIf($Default)
-        {
-            $keys | Where-Object {$_.Default -eq 'True'}
-        }
-        ElseIf($Name -and $ApiKey)
-        {
-            $keys | Where-Object {$_.Name -eq $Name -and $_.ApiKey -eq $ApiKey}
-        }
-        ElseIf($Name)
-        {
-            $keys | Where-Object {$_.Name -eq $Name}
-        }
-        ElseIf($ApiKey)
-        {
-            $keys | Where-Object {$_.ApiKey -eq $ApiKey}
-        }
-        Else
-        {
-            $keys
+            'Current'
+            {
+                $keys | Where-Object {$_.Current -eq 'True'}
+            }
+            'Default'
+            {
+                $keys | Where-Object {$_.Default -eq 'True'}
+            }
+            'Name'
+            {
+                $keys | Where-Object {$_.Name -eq $Name}
+            }
+            'ApiKey'
+            {
+                $keys | Where-Object {$_.ApiKey -eq $ApiKey}
+            }
+            'None'
+            {
+                $keys
+            }
         }
     }
 }
@@ -137,7 +140,7 @@ Function Invoke-RiotRestMethod
                 }
             }
             $script:ApiRequests += Get-Date
-            $chunk = Invoke-RestMethod -Method Get -Uri "$BaseUri/$array$Method`?api_key=$key"
+            $chunk = Invoke-RestMethod -Method Get -Uri "$BaseUri$array$Method`?api_key=$key"
             If($chunk.$array[0])
             {
                 Foreach($item in $array)
@@ -161,10 +164,14 @@ Function Invoke-RiotRestMethod
             }
         }
         $script:ApiRequests += Get-Date
-        $response = Invoke-RestMethod -Method Get -Uri "$BaseUri/$Parameter$Method`?api_key=$key"
+        $response = Invoke-RestMethod -Method Get -Uri "$BaseUri$Parameter$Method`?api_key=$key"
         If($response)
         {
-            If($response.($Parameter[0]))
+            If(-Not($Parameter))
+            {
+                $response
+            }
+            ElseIf($response.($Parameter[0]))
             {
                 Foreach ($input in $Parameter)
                 {
@@ -183,28 +190,26 @@ Function Invoke-RiotRestMethod
     }
 }
 
-Function Get-SummonerByName
+Function Get-Summoner
 {
     [CmdletBinding()]
     Param
     (
-        [Parameter(Mandatory=$true)]
-        [string[]]$Name,
-        [string]$Region = 'na'
-    )
-    Invoke-RiotRestMethod -BaseUri "https://$Region.api.pvp.net/api/lol/$Region/v1.4/summoner/by-name" -Parameter $Name
-}
-
-Function Get-SummonerByID
-{
-    [CmdletBinding()]
-    Param
-    (
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory=$true,
+        ParameterSetName='ID')]
         [string[]]$ID,
-        [string]$Region = 'na'
+        [Parameter(Mandatory=$true,
+        ParameterSetName='Name')]
+        [string[]]$Name,        [string]$Region = 'na'
     )
-    Invoke-RiotRestMethod -BaseUri "https://$Region.api.pvp.net/api/lol/$Region/v1.4/summoner" -Parameter $ID
+    If($PSCmdlet.ParameterSetName -eq 'Name')
+    {
+        Invoke-RiotRestMethod -BaseUri "https://$Region.api.pvp.net/api/lol/$Region/v1.4/summoner/by-name/" -Parameter $Name
+    }
+    If($PSCmdlet.ParameterSetName -eq 'ID')
+    {
+        Invoke-RiotRestMethod -BaseUri "https://$Region.api.pvp.net/api/lol/$Region/v1.4/summoner/" -Parameter $ID
+    }
 }
 
 Function Get-SummonerIDbyName
@@ -217,7 +222,7 @@ Function Get-SummonerIDbyName
         [string]$Region = 'na'
     )
     $ID = @()
-    $summoners = Get-SummonerByName -Name $Name
+    $summoners = Get-Summoner -Name $Name
     $summoners.id
 }
 
@@ -238,7 +243,7 @@ Function Get-SummonerMasteries
     {
         $ID = Get-SummonerIDbyName -Name $Name
     }
-    Invoke-RiotRestMethod -BaseUri "https://$Region.api.pvp.net/api/lol/$Region/v1.4/summoner" -Parameter $ID -Method '/masteries'
+    Invoke-RiotRestMethod -BaseUri "https://$Region.api.pvp.net/api/lol/$Region/v1.4/summoner/" -Parameter $ID -Method '/masteries'
 }
 
 Function Get-SummonerRunes
@@ -258,7 +263,27 @@ Function Get-SummonerRunes
     {
         $ID = Get-SummonerIDbyName -Name $Name
     }
-    Invoke-RiotRestMethod -BaseUri "https://$Region.api.pvp.net/api/lol/$Region/v1.4/summoner" -Parameter $ID -Method '/runes'
+    Invoke-RiotRestMethod -BaseUri "https://$Region.api.pvp.net/api/lol/$Region/v1.4/summoner/" -Parameter $ID -Method '/runes'
+}
+
+Function Get-SummonerNamebyId
+{
+    [CmdletBinding()]
+    Param
+    (
+        [Parameter(Mandatory=$true,
+        ParameterSetName='ID')]
+        [string[]]$ID,
+        [Parameter(Mandatory=$true,
+        ParameterSetName='Name')]
+        [string[]]$Name,
+        [string]$Region = 'na'
+    )
+    If($PSCmdlet.ParameterSetName -eq 'Name')
+    {
+        $ID = Get-SummonerIDbyName -Name $Name
+    }
+    Invoke-RiotRestMethod -BaseUri "https://$Region.api.pvp.net/api/lol/$Region/v1.4/summoner/" -Parameter $ID -Method '/name'
 }
 
 Function Get-RecentGames
@@ -280,7 +305,7 @@ Function Get-RecentGames
     }
     Foreach($summoner in $id)
     {
-        Invoke-RiotRestMethod -BaseUri "https://$Region.api.pvp.net/api/lol/$Region/v1.3/game/by-summoner" -Parameter $summoner -Method '/recent'
+        Invoke-RiotRestMethod -BaseUri "https://$Region.api.pvp.net/api/lol/$Region/v1.3/game/by-summoner/" -Parameter $summoner -Method '/recent'
     }
 }
 
@@ -303,7 +328,7 @@ Function Get-RankedStats
     }
     Foreach($summoner in $id)
     {
-        Invoke-RiotRestMethod -BaseUri "https://$Region.api.pvp.net/api/lol/$Region/v1.3/stats/by-summoner" -Parameter $summoner -Method '/ranked'
+        Invoke-RiotRestMethod -BaseUri "https://$Region.api.pvp.net/api/lol/$Region/v1.3/stats/by-summoner/" -Parameter $summoner -Method '/ranked'
     }
 }
 
@@ -326,8 +351,19 @@ Function Get-Stats
     }
     Foreach($summoner in $id)
     {
-        Invoke-RiotRestMethod -BaseUri "https://$Region.api.pvp.net/api/lol/$Region/v1.3/stats/by-summoner" -Parameter $summoner -Method '/summary'
+        Invoke-RiotRestMethod -BaseUri "https://$Region.api.pvp.net/api/lol/$Region/v1.3/stats/by-summoner/" -Parameter $summoner -Method '/summary'
     }
+}
+
+Function Get-Champions
+{
+    [CmdletBinding()]
+    Param
+    (
+        [string]$Region = 'na'
+    )
+    $champions = Invoke-RiotRestMethod -BaseUri "https://$Region.api.pvp.net/api/lol/$Region/v1.2/champion"
+    $champions.champions
 }
 
 #Split-array is community script from https://gallery.technet.microsoft.com/scriptcenter/Split-an-array-into-parts-4357dcc1 by Barry Chum
