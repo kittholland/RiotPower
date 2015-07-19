@@ -166,7 +166,7 @@ Function Invoke-RiotRestMethod
         {
             If($Parameter.Count -gt 1)
             {
-                If($response.$Parameter[0])
+                If($response.($Parameter[0]))
                 {
                     Foreach ($input in $Parameter)
                     {
