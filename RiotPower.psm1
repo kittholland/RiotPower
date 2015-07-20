@@ -315,10 +315,6 @@ Function Invoke-RiotRestMethod
                 $response
             }
         }
-        Else
-        {
-            Write-Error -Message 'No response received'
-        }
     }
 }
 
