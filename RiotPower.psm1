@@ -31,6 +31,10 @@
     If(Test-Path $KeyPath)
     {
         $keys = Get-Content -Path $KeyPath -Raw| ConvertFrom-Json
+        If(-Not($keys.Count))
+        {
+            $keys = @($keys)
+        }
         If($keys.apikey -contains $ApiKey -or $keys.name -contains $Name)
         {
             If($keys.name -contains $Name)
@@ -195,6 +199,10 @@ Function Remove-ApiKey
                 Else
                 {
                     $keys = $keys | Where-Object {$_.name -ne $Name}
+                    If(-Not($keys.Count))
+                    {
+                        $keys = @($keys)
+                    }
                     If($key.current -eq 'True')
                     {
                         $keys[0].current = 'True'
@@ -212,6 +220,10 @@ Function Remove-ApiKey
                 Else
                 {
                     $keys = $keys | Where-Object {$_.apikey -ne $ApiKey}
+                    If(-Not($keys.Count))
+                    {
+                        $keys = @($keys)
+                    }
                     If($key.current -eq 'True')
                     {
                         $keys[0].current = 'True'
