@@ -20,15 +20,11 @@
     [CmdletBinding()]
     Param
     (
-        [Parameter(Mandatory=$true,
-        ValueFromPipelineByPropertyName=$true)]
+        [Parameter(Mandatory=$true)]
         [string]$Name,
-        [Parameter(Mandatory=$true,
-        ValueFromPipelineByPropertyName=$true)]
+        [Parameter(Mandatory=$true)]
         [string]$ApiKey,
-        [Parameter(Mandatory=$true,
-        ValueFromPipelineByPropertyName=$true)]
-        [string]$RateLimit,
+        [string]$RateLimit = 10,
         [switch]$Default,
         [switch]$Current
     )
@@ -36,14 +32,28 @@
     If(Test-Path $KeyPath)
     {
         $keys = @(Get-Content -Path $KeyPath -Raw| ConvertFrom-Json)
-        $keys += @{
-            Name=$Name
-            ApiKey=$ApiKey
-            RateLimit=$RateLimit
-            Default = $Default.IsPresent
-            Current = $Current.IsPresent
+        If($keys.apikey -contains $ApiKey -or $keys.name -contains $Name)
+        {
+            If($keys.name -contains $Name)
+            {
+                Write-Error -Message 'Duplicate name detected, please enter a different name.'
+            }
+            If($keys.apikey -contains $ApiKey)
+            {
+                Write-Error -Message 'Duplicate key detected, please enter a different APIKey.'
+            }
         }
-        $keys | ConvertTo-Json | Out-File -FilePath $KeyPath 
+        Else
+        {
+            $keys += @{
+                Name=$Name
+                ApiKey=$ApiKey
+                RateLimit=$RateLimit
+                Default = $Default.IsPresent
+                Current = $Current.IsPresent
+            }
+            $keys | ConvertTo-Json | Out-File -FilePath $KeyPath
+        }
     }
     Else
     {
@@ -86,7 +96,13 @@ Function Get-ApiKey
         {
             'Current'
             {
-                $keys | Where-Object {$_.Current -eq 'True'}
+                $currentKey = $keys | Where-Object {$_.Current -eq 'True'}
+                If($currentKey.count -gt 1)
+                {
+                    Write-Warning -Message 'Duplicate current keys found. Using first key'
+                    $currentKey = $currentKey[0]
+                }
+                $currentKey
             }
             'Default'
             {
