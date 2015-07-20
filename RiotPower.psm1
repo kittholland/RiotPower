@@ -25,13 +25,12 @@
         [Parameter(Mandatory=$true)]
         [string]$ApiKey,
         [string]$RateLimit = 10,
-        [switch]$Default,
         [switch]$Current
     )
     $KeyPath = "$env:USERPROFILE\riotApiKeys.json"
     If(Test-Path $KeyPath)
     {
-        $keys = @(Get-Content -Path $KeyPath -Raw| ConvertFrom-Json)
+        $keys = Get-Content -Path $KeyPath -Raw| ConvertFrom-Json
         If($keys.apikey -contains $ApiKey -or $keys.name -contains $Name)
         {
             If($keys.name -contains $Name)
@@ -49,7 +48,6 @@
                 Name=$Name
                 ApiKey=$ApiKey
                 RateLimit=$RateLimit
-                Default = $Default.IsPresent
                 Current = $Current.IsPresent
             }
             $keys | ConvertTo-Json | Out-File -FilePath $KeyPath
@@ -62,11 +60,64 @@
                 Name = $Name
                 ApiKey = $ApiKey
                 RateLimit = $RateLimit
-                Default = $true
                 Current = $true
             }
         )
         $keys | ConvertTo-Json | Out-File -FilePath $KeyPath 
+    }
+}
+
+Function Select-ApiKey
+{
+    [CmdletBinding(DefaultParameterSetName='None')]
+    Param
+    (
+        [Parameter(ParameterSetName='Name')]
+        [string]$Name,
+        [Parameter(ParameterSetName='ApiKey')]
+        [string]$ApiKey
+    )
+    $KeyPath = "$env:USERPROFILE\riotApiKeys.json"
+    If(Test-Path $KeyPath)
+    {
+        $keys = Get-Content -Path $KeyPath -Raw| ConvertFrom-Json
+        Switch($PSCmdlet.ParameterSetName)
+        {
+            'Name'
+            {
+                $key = $keys | Where-Object {$_.name -eq $Name}
+                If(-Not($key))
+                {
+                    Write-Error "Could not locate a key named $name."
+                }
+                Else
+                {
+                    $oldCurrent = $keys | Where-Object {$_.current -eq 'True'}
+                    $oldCurrent.current = 'False'
+                    $key.current = 'True'
+                    $keys | ConvertTo-Json | Out-File -FilePath $KeyPath 
+                }
+            }
+            'ApiKey'
+            {
+                $key = $keys | Where-Object {$_.apikey -eq $ApiKey}
+                If(-Not($key))
+                {
+                    Write-Error "Could not locate a key matching $ApiKey."
+                }
+                Else
+                {
+                    $oldCurrent = $keys | Where-Object {$_.current -eq 'True'}
+                    $oldCurrent.current = 'False'
+                    $key.current = 'True'
+                    $keys | ConvertTo-Json | Out-File -FilePath $KeyPath 
+                }
+            }
+        }
+    }
+    Else
+    {
+        Write-Error -Message 'Could not locate ApiKey file. Please use add-apikey command before proceeding.'
     }
 }
 
@@ -80,9 +131,7 @@ Function Get-ApiKey
         [Parameter(ParameterSetName='ApiKey')]
         [string]$ApiKey,
         [Parameter(ParameterSetName='Current')]
-        [switch]$Current,
-        [Parameter(ParameterSetName='Default')]
-        [switch]$Default
+        [switch]$Current
     )
     $KeyPath = "$env:USERPROFILE\riotApiKeys.json"
     If(-Not(Test-Path -Path $KeyPath))
@@ -104,10 +153,6 @@ Function Get-ApiKey
                 }
                 $currentKey
             }
-            'Default'
-            {
-                $keys | Where-Object {$_.Default -eq 'True'}
-            }
             'Name'
             {
                 $keys | Where-Object {$_.Name -eq $Name}
@@ -121,6 +166,64 @@ Function Get-ApiKey
                 $keys
             }
         }
+    }
+}
+
+Function Remove-ApiKey
+{
+    [CmdletBinding(DefaultParameterSetName='None')]
+    Param
+    (
+        [Parameter(ParameterSetName='Name')]
+        [string]$Name,
+        [Parameter(ParameterSetName='ApiKey')]
+        [string]$ApiKey
+    )
+    $KeyPath = "$env:USERPROFILE\riotApiKeys.json"
+    If(Test-Path $KeyPath)
+    {
+        $keys = Get-Content -Path $KeyPath -Raw| ConvertFrom-Json
+        Switch($PSCmdlet.ParameterSetName)
+        {
+            'Name'
+            {
+                $key = $keys | Where-Object {$_.name -eq $Name}
+                If(-Not($key))
+                {
+                    Write-Error "Could not locate a key named $name."
+                }
+                Else
+                {
+                    $keys = $keys | Where-Object {$_.name -ne $Name}
+                    If($key.current -eq 'True')
+                    {
+                        $keys[0].current = 'True'
+                    }
+                    $keys | ConvertTo-Json | Out-File -FilePath $KeyPath 
+                }
+            }
+            'ApiKey'
+            {
+                $key = $keys | Where-Object {$_.apikey -eq $ApiKey}
+                If(-Not($key))
+                {
+                    Write-Error "Could not locate a key matching $ApiKey."
+                }
+                Else
+                {
+                    $keys = $keys | Where-Object {$_.apikey -ne $ApiKey}
+                    If($key.current -eq 'True')
+                    {
+                        $keys[0].current = 'True'
+                    }
+                    $keys | ConvertTo-Json | Out-File -FilePath $KeyPath 
+                }
+            }
+        }
+    }
+    Else
+    {
+        Write-Error -Message 'Could not locate ApiKey file. Please use add-apikey command before proceeding.'
     }
 }
 
