@@ -60,6 +60,32 @@ Function Get-LeagueEntryBySummoner
     }
 }
 
+Function Get-LeagueByTeam
+{
+    [CmdletBinding()]
+    Param
+    (
+        [Parameter(Mandatory=$true)]
+        [string[]]$TeamID,
+        [ValidateSet('br', 'eune', 'euw', 'kr', 'lan', 'las', 'na', 'oce', 'ru', 'tr')]
+        [string]$Region = 'na'
+    )
+    Invoke-RiotRestMethod -BaseUri "https://$Region.api.pvp.net/api/lol/$Region/v2.5/league/by-team/" -Parameter $TeamID
+}
+
+Function Get-LeagueEntryByTeam
+{
+    [CmdletBinding()]
+    Param
+    (
+        [Parameter(Mandatory=$true)]
+        [string[]]$TeamID,
+        [ValidateSet('br', 'eune', 'euw', 'kr', 'lan', 'las', 'na', 'oce', 'ru', 'tr')]
+        [string]$Region = 'na'
+    )
+    Invoke-RiotRestMethod -BaseUri "https://$Region.api.pvp.net/api/lol/$Region/v2.5/league/by-team/" -Parameter $TeamID -Method '/entry'
+}
+
 Function Get-ChallengerLeague
 {
     [CmdletBinding()]
