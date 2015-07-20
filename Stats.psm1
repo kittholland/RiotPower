@@ -14,11 +14,18 @@
     )
     If($PSCmdlet.ParameterSetName -eq 'Name')
     {
-        $ID = Get-SummonerIDbyName -Name $Name
+        $summoner = Get-Summoner -Name $Name -Region $Region
     }
-    Foreach($summoner in $id)
+    ElseIf($PSCmdlet.ParameterSetName -eq 'ID')
     {
-        Invoke-RiotRestMethod -BaseUri "https://$Region.api.pvp.net/api/lol/$Region/v1.3/stats/by-summoner/" -Parameter $summoner -Method '/ranked'
+        $summoner = Get-Summoner -ID $ID -Region $Region
+    }
+    $results = @()
+    Foreach($summonerID in $summoner)
+    {
+        $result = Invoke-RiotRestMethod -BaseUri "https://$Region.api.pvp.net/api/lol/$Region/v1.3/stats/by-summoner/" -Parameter $summonerID.id -Method '/ranked'
+        $result | Add-Member -MemberType NoteProperty -Name Name -Value $summonerID.Name
+        $result
     }
 }
 
@@ -38,10 +45,17 @@ Function Get-Stats
     )
     If($PSCmdlet.ParameterSetName -eq 'Name')
     {
-        $ID = Get-SummonerIDbyName -Name $Name
+        $summoner = Get-Summoner -Name $Name -Region $Region
     }
-    Foreach($summoner in $id)
+    ElseIf($PSCmdlet.ParameterSetName -eq 'ID')
     {
-        Invoke-RiotRestMethod -BaseUri "https://$Region.api.pvp.net/api/lol/$Region/v1.3/stats/by-summoner/" -Parameter $summoner -Method '/summary'
+        $summoner = Get-Summoner -ID $ID -Region $Region
+    }
+    $results = @()
+    Foreach($summonerID in $summoner)
+    {
+        $result = Invoke-RiotRestMethod -BaseUri "https://$Region.api.pvp.net/api/lol/$Region/v1.3/stats/by-summoner/" -Parameter $summonerID.id -Method '/summary'
+        $result | Add-Member -MemberType NoteProperty -Name Name -Value $summonerID.Name
+        $result
     }
 }

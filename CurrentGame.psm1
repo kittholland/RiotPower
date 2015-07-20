@@ -57,10 +57,17 @@
     }
     If($PSCmdlet.ParameterSetName -eq 'Name')
     {
-        $ID = Get-SummonerIDbyName -Name $Name
+        $summoner = Get-Summoner -Name $Name -Region $Region
     }
-    Foreach($summoner in $id)
+    ElseIf($PSCmdlet.ParameterSetName -eq 'ID')
     {
-        Invoke-RiotRestMethod -BaseUri "https://$Region.api.pvp.net/observer-mode/rest/consumer/getSpectatorGameInfo/$platformID/" -Parameter $summoner
+        $summoner = Get-Summoner -ID $ID -Region $Region
+    }
+    $results = @()
+    Foreach($summonerID in $summoner)
+    {
+        $result = Invoke-RiotRestMethod -BaseUri "https://$Region.api.pvp.net/observer-mode/rest/consumer/getSpectatorGameInfo/$platformID/" -Parameter $summonerID.id
+        $result | Add-Member -MemberType NoteProperty -Name Name -Value $summonerID.Name
+        $result
     }
 }

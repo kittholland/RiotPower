@@ -14,10 +14,17 @@
     )
     If($PSCmdlet.ParameterSetName -eq 'Name')
     {
-        $ID = Get-SummonerIDbyName -Name $Name
+        $summoner = Get-Summoner -Name $Name -Region $Region
     }
-    Foreach($summoner in $id)
+    ElseIf($PSCmdlet.ParameterSetName -eq 'ID')
     {
-        Invoke-RiotRestMethod -BaseUri "https://$Region.api.pvp.net/api/lol/$Region/v1.3/game/by-summoner/" -Parameter $summoner -Method '/recent'
+        $summoner = Get-Summoner -ID $ID -Region $Region
+    }
+    $results = @()
+    Foreach($summonerID in $summoner)
+    {
+        $result = Invoke-RiotRestMethod -BaseUri "https://$Region.api.pvp.net/api/lol/$Region/v1.3/game/by-summoner/" -Parameter $summonerID.id -Method '/recent'
+        $result | Add-Member -MemberType NoteProperty -Name Name -Value $summonerID.Name
+        $result
     }
 }
