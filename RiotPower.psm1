@@ -272,8 +272,8 @@ Function Invoke-RiotRestMethod
                 }
             }
             $global:ApiRequests += Get-Date
-            $chunk = Invoke-RestMethod -Method Get -Uri ("$BaseUri$Parameter$Method`?$Query" + "api_key=$key")
-            If($chunk.$array[0])
+            $chunk = Invoke-RestMethod -Method Get -Uri ("$BaseUri$array$Method`?$Query" + "api_key=$key")
+            If($chunk.($array[0]))
             {
                 Foreach($item in $array)
                 {
