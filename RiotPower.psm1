@@ -116,12 +116,13 @@ Function Invoke-RiotRestMethod
         [Parameter(Mandatory=$true)]
         [Uri]$BaseUri,
         [String[]]$Parameter,
-        [String]$Method
+        [String]$Method,
+        [String]$Query
     )
     $OFS = ','
-    If(-Not($script:ApiRequests))
+    If(-Not($global:ApiRequests))
     {
-        $script:ApiRequests = @()
+        $global:ApiRequests = @()
     }
     $ApiKey = Get-ApiKey -Current
     $rateLimit = $apikey.RateLimit
@@ -132,15 +133,15 @@ Function Invoke-RiotRestMethod
         $arrays = Split-Array -inArray $Parameter -size 40
         Foreach($array in $arrays)
         {
-            If($script:ApiRequests)
+            If($global:ApiRequests)
             {
-                While($script:ApiRequests[-$rateLimit] -gt (Get-Date).AddSeconds(-10))
+                While($global:ApiRequests[-$rateLimit] -gt (Get-Date).AddSeconds(-10))
                 {
                     Start-Sleep -Seconds 1
                 }
             }
-            $script:ApiRequests += Get-Date
-            $chunk = Invoke-RestMethod -Method Get -Uri "$BaseUri$array$Method`?api_key=$key"
+            $global:ApiRequests += Get-Date
+            $chunk = Invoke-RestMethod -Method Get -Uri ("$BaseUri$Parameter$Method`?$Query" + "api_key=$key")
             If($chunk.$array[0])
             {
                 Foreach($item in $array)
@@ -156,15 +157,15 @@ Function Invoke-RiotRestMethod
     }
     Else
     {
-        If($script:ApiRequests.Count -gt 10)
+        If($global:ApiRequests.Count -gt 10)
         {
-            While($script:ApiRequests[-$rateLimit] -gt (Get-Date).AddSeconds(-10))
+            While($global:ApiRequests[-$rateLimit] -gt (Get-Date).AddSeconds(-10))
             {
-                Start-Sleep -Seconds 1
+                Start-Sleep -Milliseconds 1025
             }
         }
-        $script:ApiRequests += Get-Date
-        $response = Invoke-RestMethod -Method Get -Uri "$BaseUri$Parameter$Method`?api_key=$key"
+        $global:ApiRequests += Get-Date
+        $response = Invoke-RestMethod -Method Get -Uri ("$BaseUri$Parameter$Method`?$Query" + "api_key=$key")
         If($response)
         {
             If(-Not($Parameter))

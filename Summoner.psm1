@@ -8,7 +8,9 @@
         [string[]]$ID,
         [Parameter(Mandatory=$true,
         ParameterSetName='Name')]
-        [string[]]$Name,        [string]$Region = 'na'
+        [string[]]$Name,
+        [ValidateSet('br', 'eune', 'euw', 'kr', 'lan', 'las', 'na', 'oce', 'ru', 'tr')]
+        [string]$Region = 'na'
     )
     If($PSCmdlet.ParameterSetName -eq 'Name')
     {
@@ -27,10 +29,11 @@ Function Get-SummonerIDbyName
     (
         [Parameter(Mandatory=$true)]
         [string[]]$Name,
+        [ValidateSet('br', 'eune', 'euw', 'kr', 'lan', 'las', 'na', 'oce', 'ru', 'tr')]
         [string]$Region = 'na'
     )
     $ID = @()
-    $summoners = Get-Summoner -Name $Name
+    $summoners = Get-Summoner -Name $Name -Region $Region
     $summoners.id
 }
 
@@ -45,11 +48,12 @@ Function Get-SummonerMasteries
         [Parameter(Mandatory=$true,
         ParameterSetName='Name')]
         [string[]]$Name,
+        [ValidateSet('br', 'eune', 'euw', 'kr', 'lan', 'las', 'na', 'oce', 'ru', 'tr')]
         [string]$Region = 'na'
     )
     If($PSCmdlet.ParameterSetName -eq 'Name')
     {
-        $ID = Get-SummonerIDbyName -Name $Name
+        $ID = Get-SummonerIDbyName -Name $Name -Region $Region
     }
     Invoke-RiotRestMethod -BaseUri "https://$Region.api.pvp.net/api/lol/$Region/v1.4/summoner/" -Parameter $ID -Method '/masteries'
 }
@@ -65,11 +69,12 @@ Function Get-SummonerRunes
         [Parameter(Mandatory=$true,
         ParameterSetName='Name')]
         [string[]]$Name,
+        [ValidateSet('br', 'eune', 'euw', 'kr', 'lan', 'las', 'na', 'oce', 'ru', 'tr')]
         [string]$Region = 'na'
     )
     If($PSCmdlet.ParameterSetName -eq 'Name')
     {
-        $ID = Get-SummonerIDbyName -Name $Name
+        $ID = Get-SummonerIDbyName -Name $Name -Region $Region
     }
     Invoke-RiotRestMethod -BaseUri "https://$Region.api.pvp.net/api/lol/$Region/v1.4/summoner/" -Parameter $ID -Method '/runes'
 }
@@ -85,11 +90,12 @@ Function Get-SummonerNamebyId
         [Parameter(Mandatory=$true,
         ParameterSetName='Name')]
         [string[]]$Name,
+        [ValidateSet('br', 'eune', 'euw', 'kr', 'lan', 'las', 'na', 'oce', 'ru', 'tr')]
         [string]$Region = 'na'
     )
     If($PSCmdlet.ParameterSetName -eq 'Name')
     {
-        $ID = Get-SummonerIDbyName -Name $Name
+        $ID = Get-SummonerIDbyName -Name $Name -Region $Region
     }
     Invoke-RiotRestMethod -BaseUri "https://$Region.api.pvp.net/api/lol/$Region/v1.4/summoner/" -Parameter $ID -Method '/name'
 }

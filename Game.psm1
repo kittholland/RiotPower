@@ -9,6 +9,7 @@
         [Parameter(Mandatory=$true,
         ParameterSetName='Name')]
         [string[]]$Name,
+        [ValidateSet('br', 'eune', 'euw', 'kr', 'lan', 'las', 'na', 'oce', 'ru', 'tr')]
         [string]$Region = 'na'
     )
     If($PSCmdlet.ParameterSetName -eq 'Name')
