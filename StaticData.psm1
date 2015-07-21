@@ -11,7 +11,7 @@
         [string[]]$ID
     )
     $results = @()
-    $entries = Invoke-RiotRestMethod -BaseUri "https://$Region.api.pvp.net/api/lol/static-data/$Region/v1.2/champion"
+    $entries = Invoke-RiotRestMethod -BaseUri "https://global.api.pvp.net/api/lol/static-data/$Region/v1.2/champion"
     Foreach ($entry in ($entries.data | Get-Member -MemberType NoteProperty | Select-Object -ExpandProperty Name))
     {
         $results += $entries.data.$entry
@@ -49,7 +49,7 @@ Function Get-StaticItemData
         [string[]]$ID
     )
     $results = @()
-    $entries = Invoke-RiotRestMethod -BaseUri "https://$Region.api.pvp.net/api/lol/static-data/$Region/v1.2/item"
+    $entries = Invoke-RiotRestMethod -BaseUri "https://global.api.pvp.net/api/lol/static-data/$Region/v1.2/item"
     Foreach ($entry in ($entries.data | Get-Member -MemberType NoteProperty | Select-Object -ExpandProperty Name))
     {
         $results += $entries.data.$entry
@@ -82,7 +82,7 @@ Function Get-StaticLanguageStringsData
         [ValidateSet('br', 'eune', 'euw', 'kr', 'lan', 'las', 'na', 'oce', 'ru', 'tr')]
         [string]$Region = 'na'
     )
-    Invoke-RiotRestMethod -BaseUri "https://$Region.api.pvp.net/api/lol/static-data/$Region/v1.2/language-strings"
+    Invoke-RiotRestMethod -BaseUri "https://global.api.pvp.net/api/lol/static-data/$Region/v1.2/language-strings"
 }
 
 Function Get-StaticLanguagesData
@@ -93,7 +93,7 @@ Function Get-StaticLanguagesData
         [ValidateSet('br', 'eune', 'euw', 'kr', 'lan', 'las', 'na', 'oce', 'ru', 'tr')]
         [string]$Region = 'na'
     )
-    Invoke-RiotRestMethod -BaseUri "https://$Region.api.pvp.net/api/lol/static-data/$Region/v1.2/languages"
+    Invoke-RiotRestMethod -BaseUri "https://global.api.pvp.net/api/lol/static-data/$Region/v1.2/languages"
 }
 
 Function Get-StaticMapData
@@ -104,7 +104,7 @@ Function Get-StaticMapData
         [ValidateSet('br', 'eune', 'euw', 'kr', 'lan', 'las', 'na', 'oce', 'ru', 'tr')]
         [string]$Region = 'na'
     )
-    $entries = Invoke-RiotRestMethod -BaseUri "https://$Region.api.pvp.net/api/lol/static-data/$Region/v1.2/map"
+    $entries = Invoke-RiotRestMethod -BaseUri "https://global.api.pvp.net/api/lol/static-data/$Region/v1.2/map"
     Foreach ($entry in ($entries.data | Get-Member -MemberType NoteProperty | Select-Object -ExpandProperty Name))
     {
         $entries.data.$entry
@@ -124,7 +124,7 @@ Function Get-StaticMasteryData
         [string[]]$ID
     )
     $results = @()
-    $entries = Invoke-RiotRestMethod -BaseUri "https://$Region.api.pvp.net/api/lol/static-data/$Region/v1.2/mastery"
+    $entries = Invoke-RiotRestMethod -BaseUri "https://global.api.pvp.net/api/lol/static-data/$Region/v1.2/mastery"
     Foreach ($entry in ($entries.data | Get-Member -MemberType NoteProperty | Select-Object -ExpandProperty Name))
     {
         $results += $entries.data.$entry
@@ -157,7 +157,7 @@ Function Get-StaticRealmData
         [ValidateSet('br', 'eune', 'euw', 'kr', 'lan', 'las', 'na', 'oce', 'ru', 'tr')]
         [string]$Region = 'na'
     )
-    Invoke-RiotRestMethod -BaseUri "https://$Region.api.pvp.net/api/lol/static-data/$Region/v1.2/realm"
+    Invoke-RiotRestMethod -BaseUri "https://global.api.pvp.net/api/lol/static-data/$Region/v1.2/realm"
 }
 
 Function Get-StaticRuneData
@@ -173,7 +173,7 @@ Function Get-StaticRuneData
         [string[]]$ID
     )
     $results = @()
-    $entries = Invoke-RiotRestMethod -BaseUri "https://$Region.api.pvp.net/api/lol/static-data/$Region/v1.2/rune"
+    $entries = Invoke-RiotRestMethod -BaseUri "https://global.api.pvp.net/api/lol/static-data/$Region/v1.2/rune"
     Foreach ($entry in ($entries.data | Get-Member -MemberType NoteProperty | Select-Object -ExpandProperty Name))
     {
         $results += $entries.data.$entry
@@ -211,7 +211,7 @@ Function Get-StaticSummonerSpellData
         [string[]]$ID
     )
     $results = @()
-    $entries = Invoke-RiotRestMethod -BaseUri "https://$Region.api.pvp.net/api/lol/static-data/$Region/v1.2/summoner-spell"
+    $entries = Invoke-RiotRestMethod -BaseUri "https://global.api.pvp.net/api/lol/static-data/$Region/v1.2/summoner-spell"
     Foreach ($entry in ($entries.data | Get-Member -MemberType NoteProperty | Select-Object -ExpandProperty Name))
     {
         $results += $entries.data.$entry
@@ -244,5 +244,5 @@ Function Get-StaticVersionData
         [ValidateSet('br', 'eune', 'euw', 'kr', 'lan', 'las', 'na', 'oce', 'ru', 'tr')]
         [string]$Region = 'na'
     )
-    Invoke-RiotRestMethod -BaseUri "https://$Region.api.pvp.net/api/lol/static-data/$Region/v1.2/versions"
+    Invoke-RiotRestMethod -BaseUri "https://global.api.pvp.net/api/lol/static-data/$Region/v1.2/versions"
 }
