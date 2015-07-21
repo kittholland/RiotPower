@@ -296,6 +296,10 @@ Function Invoke-RiotRestMethod
                     {
                         Write-Error -Message "Error 429 Rate Limit Exceeded has been encountered, please ensure you have the correct API key rate limit set. Attempted Uri: $(("$BaseUri$Parameter$Method`?$Query" + "api_key=$key"))."
                     }
+                    Default
+                    {
+                        $_ | Write-Error
+                    }
                 }
             }
             If($chunk.($array[0].Replace(' ', '')))
@@ -344,6 +348,10 @@ Function Invoke-RiotRestMethod
                 '429'
                 {
                     Write-Error -Message "Error 429 Rate Limit Exceeded has been encountered, please ensure you have the correct API key rate limit set. Attempted Uri: $(("$BaseUri$Parameter$Method`?$Query" + "api_key=$key"))."
+                }
+                Default
+                {
+                    $_ | Write-Error
                 }
             }
         }
