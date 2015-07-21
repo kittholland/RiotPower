@@ -7,7 +7,7 @@ $region = 'kr'
 #Language Region for Static Data
 $languageRegion = 'na'
 
-#Get a list of player IDs, there are several sources you could use. In this example I getting a list of all 200 Challenger players and using those IDs.
+#Get a list of player IDs, there are several sources you could use. In this example I am getting a list of all 200 Challenger players and using those IDs.
 $PlayerIDs = Get-ChallengerLeague -LeagueType Solo -Region $region | Select-Object -ExpandProperty playerOrTeamId
 
 #Name of the item that I am searching for. I'd like to see if anyone is making interesting builds with the new Liandry's.
