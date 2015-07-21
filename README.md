@@ -18,7 +18,7 @@ To begin using you must obtain an API key from Riot Games at https://developer.r
 Commands included in this module:
 
 Add-ApiKey
-ex: Add-ApiKey -Name 'Dev' -ApiKey df4750ee-8b33-4975-9d8a-a52c481fae3d -RateLimit 10
+  ex: Add-ApiKey -Name 'Dev' -ApiKey df4750ee-8b33-4975-9d8a-a52c481fae3d -RateLimit 10
 
 Get-ApiKey
 ex: Get-ApiKey -Name 'Dev'
