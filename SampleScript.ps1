@@ -40,7 +40,8 @@ Foreach($player in $playerGames)
 #Check if the game matches the type I specified before
         If($game.subType -eq $gameType)
         {
-#Inspect the items that were in each inventory slot at the end of the game to see if one matches the itemID of the item I specified before
+#Inspect the items that were in each inventory slot at the end of the game to see if one matches the itemID of the item I specified before.
+#We don't need to check item 6 in this case because that is the Trinket slot.
             If(
                 $game.stats.item0 -eq $itemID -or
                 $game.stats.item1 -eq $itemID -or
