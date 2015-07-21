@@ -130,7 +130,7 @@ Foreach($player in $playerGames)
 #Output the results to the screen.
 $results
 
-#There are lots of other interesting things we could do with these results. I've commented out some below.
+#There are lots of other interesting things we could do with these results. I've commented out some below. Give them a try by removing the # in front of each $results.
 
 #Display the results in a table
 #$results | Format-Table
