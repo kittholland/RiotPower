@@ -272,7 +272,32 @@ Function Invoke-RiotRestMethod
                 }
             }
             $global:ApiRequests += Get-Date
-            $chunk = Invoke-RestMethod -Method Get -Uri ("$BaseUri$array$Method`?$Query" + "api_key=$key")
+            Try
+            {
+                $chunk = Invoke-RestMethod -Method Get -Uri ("$BaseUri$array$Method`?$Query" + "api_key=$key")
+            }
+            Catch
+            {
+                Switch($_.Exception.Response.StatusCode)
+                {
+                    'BadRequest'
+                    {
+                        Write-Error -Message "Error 400 Bad Request has been encountered, please ensure you are using appropriate parameters for this command. Attempted Uri: $(("$BaseUri$Parameter$Method`?$Query" + "api_key=$key"))"
+                    }
+                    'Unauthorized'
+                    {
+                        Write-Error -Message "Error 401 Unauthorized has been encountered, please ensure you are using appropriate parameters for this command. Attempted Uri: $(("$BaseUri$Parameter$Method`?$Query" + "api_key=$key"))."
+                    }
+                    'NotFound'
+                    {
+                        Write-Warning -Message "Error 404 Not Found has been encountered, this may indicate data is unavailable for your request. Attempted Uri: $(("$BaseUri$Parameter$Method`?$Query" + "api_key=$key"))."
+                    }
+                    '429'
+                    {
+                        Write-Error -Message "Error 429 Rate Limit Exceeded has been encountered, please ensure you have the correct API key rate limit set. Attempted Uri: $(("$BaseUri$Parameter$Method`?$Query" + "api_key=$key"))."
+                    }
+                }
+            }
             If($chunk.($array[0]))
             {
                 Foreach($item in $array)
@@ -296,7 +321,32 @@ Function Invoke-RiotRestMethod
             }
         }
         $global:ApiRequests += Get-Date
-        $response = Invoke-RestMethod -Method Get -Uri ("$BaseUri$Parameter$Method`?$Query" + "api_key=$key")
+        Try
+        {
+            $response = Invoke-RestMethod -Method Get -Uri ("$BaseUri$Parameter$Method`?$Query" + "api_key=$key")
+        }
+        Catch
+        {
+            Switch($_.Exception.Response.StatusCode)
+            {
+                'BadRequest'
+                {
+                    Write-Error -Message "Error 400 Bad Request has been encountered, please ensure you are using appropriate parameters for this command. Attempted Uri: $(("$BaseUri$Parameter$Method`?$Query" + "api_key=$key"))"
+                }
+                'Unauthorized'
+                {
+                    Write-Error -Message "Error 401 Unauthorized has been encountered, please ensure you are using appropriate parameters for this command. Attempted Uri: $(("$BaseUri$Parameter$Method`?$Query" + "api_key=$key"))."
+                }
+                'NotFound'
+                {
+                    Write-Warning -Message "Error 404 Not Found has been encountered, this may indicate data is unavailable for your request. Attempted Uri: $(("$BaseUri$Parameter$Method`?$Query" + "api_key=$key"))."
+                }
+                '429'
+                {
+                    Write-Error -Message "Error 429 Rate Limit Exceeded has been encountered, please ensure you have the correct API key rate limit set. Attempted Uri: $(("$BaseUri$Parameter$Method`?$Query" + "api_key=$key"))."
+                }
+            }
+        }
         If($response)
         {
             If(-Not($Parameter))
