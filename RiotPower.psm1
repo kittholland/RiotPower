@@ -298,11 +298,11 @@ Function Invoke-RiotRestMethod
                     }
                 }
             }
-            If($chunk.($array[0]))
+            If($chunk.($array[0].Replace(' ', '')))
             {
                 Foreach($item in $array)
                 {
-                    $chunk.$item
+                    $chunk.($item.Replace(' ', ''))
                 }
             }
             Else
@@ -353,11 +353,11 @@ Function Invoke-RiotRestMethod
             {
                 $response
             }
-            ElseIf($response.($Parameter[0]))
+            ElseIf($response.($Parameter[0].Replace(' ', '')))
             {
                 Foreach ($input in $Parameter)
                 {
-                    $response.$input
+                    $response.($input.Replace(' ', ''))
                 }
             }
             Else
@@ -401,5 +401,4 @@ Function Split-Array
     $outArray+=,@($inArray[$start..$end]) 
   } 
   return ,$outArray 
- 
 }
